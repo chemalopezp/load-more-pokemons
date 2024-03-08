@@ -14,15 +14,12 @@ const PokemonList = () => {
 
   const fetchPokemons = async (limit, offset) => {
     try {
-      console.log("Calling ", nextCallUrl);
       const response = await fetch(nextCallUrl);
       const data = await response.json();
-      console.log("data", data);
       setLoading(false);
       setPokemons(pokemons.concat(data.results));
       setPokemonsCount(data.count);
       setNextCallUrl(data.next);
-      console.log("pokemons", pokemons);
     } catch (error) {
       console.error(error);
     }
