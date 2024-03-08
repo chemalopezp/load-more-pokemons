@@ -4,26 +4,33 @@
 
 import React, { useEffect, useState } from "react";
 
-const fetchPokemons = async (limit, offset) => {
-  const URL = "https://pokeapi.co/api/v2/pokemon?limit=5&offset=0";
-  try {
-    const response = await fetch(URL);
-    const data = await response.json();
-    return data.results;
-  } catch (error) {
-    console.error(error);
-  }
-};
-
 const PokemonList = () => {
   const [pokemons, setPokemons] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [pokemonsCount, setPokemonsCount] = useState(0);
+  const [nextCallUrl, setNextCallUrl] = useState(
+    "https://pokeapi.co/api/v2/pokemon?limit=5&offset=0"
+  );
+
+  const fetchPokemons = async (limit, offset) => {
+    try {
+      console.log("Calling ", nextCallUrl);
+      const response = await fetch(nextCallUrl);
+      const data = await response.json();
+      console.log("data", data);
+      setLoading(false);
+      setPokemons(pokemons.concat(data.results));
+      setPokemonsCount(data.count);
+      setNextCallUrl(data.next);
+      console.log("pokemons", pokemons);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     setLoading(true);
-    fetchPokemons().then((data) => {
-      setPokemons(data);
-      setLoading(false);
-    });
+    fetchPokemons().then((data) => {});
   }, []);
 
   return (
@@ -36,7 +43,12 @@ const PokemonList = () => {
           <li key={pokemon.name}>{pokemon.name}</li>
         ))}
       </ul>
-      <button>Load More</button>
+      <p>
+        Displaying {pokemons.length} of {pokemonsCount} results
+      </p>
+      {pokemons.length !== pokemonsCount ? (
+        <button onClick={fetchPokemons}>Load more</button>
+      ) : null}
     </div>
   );
 };
